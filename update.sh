@@ -9,14 +9,15 @@ while read repo; do
 	url=`echo $repo|awk '{print $2}'`
 	
 	if [[ -d ${DIR}/${prefix} ]]; then
+		echo ""
 		echo "Prefix ${prefix} exists."
 		echo "Perorming update...."
 		echo ""
 		git --git-dir=${DIR}/.git --work-tree=${DIR} subtree pull --prefix=${prefix} ${url} master
 	else
+		echo ""
 		echo "Prefix ${prefix} doesn't exist."
 		echo "Adding the repo..."
-		echo ""
 		git --git-dir=${DIR}/.git --work-tree=${DIR} subtree add --prefix=${prefix} ${url} master
 	fi;
 
