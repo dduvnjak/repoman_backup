@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 DIR="$( cd -P "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
+git --git-dir=${DIR}/.git --work-tree=${DIR} pull
 
 while read repo; do
 	prefix=`echo $repo|awk '{print $1}'`
@@ -9,7 +10,11 @@ while read repo; do
 	if [[ -d ${DIR}/${prefix} ]]; then
 		echo "Prefix ${prefix} exists."
 		echo "Perorming update...."
-		git --git-dir=${DIR}/.git --work-tree=${DIR} subtree pull   --prefix=${prefix} ${url} master
+		git --git-dir=${DIR}/.git --work-tree=${DIR} subtree pull --prefix=${prefix} ${url} master
+	else
+		echo "Prefix ${prefix} doesn't exist."
+		echo "Adding the repo..."
+		git --git-dir=${DIR}/.git --work-tree=${DIR} subtree add --prefix=${prefix} ${url} master
 	fi;
 
 done < ${DIR}/repolist
