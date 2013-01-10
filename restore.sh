@@ -8,7 +8,7 @@ function usage {
 }
 
 # check number of arguments
-if [[ $# -eq 0 ]] && [[ $# -gt 1 ]]; then
+if [[ $# -eq 0 ]] || [[ $# -gt 1 ]]; then
         err_msg="ERROR: Invalid number of arguments \n";
         usage
         exit -1;
@@ -16,7 +16,7 @@ fi;
 
 if [[ ! `grep ${prefix} ${DIR}/repolist` ]]; then
   echo "Repo ${prefix} not found!"
-  exit 1
+  exit -1
 fi;
 
 #git --git-dir=${DIR}/.git --work-tree=${DIR} subtree split --prefix=${prefix} --annotate="(${prefix})" -b ${prefix}
