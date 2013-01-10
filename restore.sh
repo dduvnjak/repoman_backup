@@ -21,8 +21,13 @@ if [[ ${url} == "" ]]; then
   exit -1
 fi;
 
+ssh_conn=`echo ${url} | cut -d":" -f 1`
+repo_location=`echo ${url} | cut -d":" -f 2`
+
+ssh ${ssh_conn} "rm -rf ${repo_location}/* && git --git-dir=${repo_location} init --bare"
+
 git --git-dir=${DIR}/.git --work-tree=${DIR} subtree split --prefix=${prefix} --annotate="(${prefix})" -b ${prefix}
 
-git push ${url} ${prefix}:master
+git push -f ${url} ${prefix}:master
 
 git branch -d ${prefix}
