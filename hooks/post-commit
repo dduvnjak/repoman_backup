@@ -7,6 +7,4 @@
 
 : Nothing
 
-****************************
-POST COMMIT¸
-****************************
+echo "Commit successful."
