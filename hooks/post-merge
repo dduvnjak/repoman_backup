@@ -4,4 +4,10 @@ echo "****************************"
 echo "POST MEEEEEEEEEEEEEEEEEEERGE"
 echo "****************************"
 
-bundle install
+echo "Trying to execute bundler..."
+if [[ `gem list | grep bundler` ]]; then
+  bundle install
+else
+ echo "Please install Bundler by running 'gem install bundler'"
+ exit 1
+fi;
