@@ -1,0 +1,59 @@
+#!/bin/sh
+#
+# An example hook script for the "post-receive" event.
+#
+# The "post-receive" script is run after receive-pack has accepted a pack
+# and the repository has been updated.  It is passed arguments in through
+# stdin in the form
+#  <oldrev> <newrev> <refname>
+# For example:
+#  aa453216d1b3e49e7f6f98441fa56946ddcd6a20 68f7abf4e6f922807889f52bc043ecd31b79f814 refs/heads/master
+#
+# see contrib/hooks/ for a sample, or uncomment the next line and
+# rename the file to "post-receive".
+
+#. /usr/share/doc/git-core/contrib/hooks/post-receive-email
+
+# global config
+JENKINS_SERVER=ec2-54-247-191-95.eu-west-1.compute.amazonaws.com
+GIT_SERVER=${JENKINS_SERVER}
+GIT_PATH="/home/git/repositories"
+
+
+#curl -s http://${JENKINS_SERVER}/git/notifyCommit?url=git@${GIT_SERVER}:${GIT_PATH}/${GL_REPO}.git
+
+
+date > /tmp/gitolite-hook-test && echo "http://${JENKINS_SERVER}/git/notifyCommit?url=git@${GIT_SERVER}:${GIT_PATH}/${GL_REPO}.git" >> /tmp/gitolite-hook-test
+
+while read oval nval ref ; do
+    if expr "$ref" : "^refs/heads/"; then
+        if expr "$oval" : '0*$' >/dev/null
+        then
+            revspec=$nval
+        else
+            revspec=$oval..$nval
+        fi
+        other_branches=$(git for-each-ref --format='%(refname)' refs/heads/ |
+            grep -F -v $ref)
+
+        # You may want to collect the revisions to sort out
+        # duplicates before the transmission to the bugtracker,
+        # but not sorting is easier ;-)
+        for revision in `git rev-parse --not $other_branches | git rev-list --stdin $revspec`; do
+                    # I don't know if you need to url-escape the content
+                    # Also you may want to transmit the data in a POST request,
+                commit_msg=`git log $revision~1..$revision`
+                echo $commit_msg  >> /tmp/githook_message_test
+                #export cmsg=$(echo $commit_msg | grep "trigger_jenkins=true")
+                #echo $cmsg
+                if [ "$(echo $commit_msg | grep "trigger_jenkins=true")" ]; then
+                        trigger_jenkins=true
+                fi
+        done
+    fi
+done
+
+if [ $trigger_jenkins ]; then
+        echo "Trigger is a go" >> /tmp/githook_message_test
+                curl -s http://${JENKINS_SERVER}/git/notifyCommit?url=git@${GIT_SERVER}:${GIT_PATH}/${GL_REPO}.git
+fi
