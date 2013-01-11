@@ -3,3 +3,5 @@
 echo "****************************"
 echo "POST MEEEEEEEEEEEEEEEEEEERGE"
 echo "****************************"
+
+bundle install
